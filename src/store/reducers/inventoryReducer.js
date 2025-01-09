@@ -1,6 +1,7 @@
 const initialState = {
   userRole: 'user',
   products: [],
+  metrics: []
 };
 
 const inventoryReducer = (state = initialState, action) => {
@@ -8,7 +9,7 @@ const inventoryReducer = (state = initialState, action) => {
     case 'SET_PRODUCTS':
       return {
         ...state,
-        products:  action.payload,
+        products: action.payload,
       };
     case 'UPDATE_PRODUCT':
       return {
@@ -20,12 +21,18 @@ const inventoryReducer = (state = initialState, action) => {
     case 'DELETE_PRODUCT':
       return {
         ...state,
-        products: state.products[0].filter((product) => product.id !== action.payload),
+        products: state.products.filter((product) => product.id !== action.payload),
       };
     case 'TOGGLE_USER_ROLE':
       return {
         ...state,
         userRole: state.userRole === 'admin' ? 'user' : 'admin',
+      };
+
+    case 'SET_METRICS':
+      return {
+        ...state,
+        metrics: action.payload,
       };
     default:
       return state;

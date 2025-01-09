@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { deleteProduct } from '../store/actions/inventoryActions';
+import { deleteProduct, setMetrics } from '../store/actions/inventoryActions';
 
 import Capsule from '../container/Capsule';
 import EditProductModal from '../components/EditProductModal';
@@ -10,38 +10,43 @@ import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { faDeleteLeft } from '@fortawesome/free-solid-svg-icons';
 
+import getProductMetrics from '../helpers/helper'
+
 const ProductTable = () => {
 
   const products = useSelector((state) => {
     return Array.isArray(state.products[0]) ? state.products[0] : state.products;
-  });  
+  });
   const userStatus = useSelector((state) => state.userRole);
-  const [hiddenRows, setHiddenRows] = useState([]); 
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [hiddenRows, setHiddenRows] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const dispatch = useDispatch();
 
   const handleEditProduct = (product) => {
     setSelectedProduct(product);
-    setIsModalOpen(true); 
+    setIsModalOpen(true);
   };
 
   const handleView = (id) => {
     setHiddenRows((prevState) =>
       prevState.includes(id)
-        ? prevState.filter((hiddenId) => hiddenId !== id) 
+        ? prevState.filter((hiddenId) => hiddenId !== id)
         : [...prevState, id]
     );
   };
 
-  const handleDeleteProduct = (id) => {
+  const handleDeleteProduct = (id, productsWithIds) => {
+    let metricsArray = getProductMetrics(productsWithIds)
+    dispatch(setMetrics(metricsArray))
     dispatch(deleteProduct(id));
   };
 
   const closeModal = () => {
-    setIsModalOpen(false); 
-    setSelectedProduct(null); 
+    setIsModalOpen(false);
+    setSelectedProduct(null);
   };
+
 
   return (
     <>
@@ -106,7 +111,7 @@ const ProductTable = () => {
                       color: 'red',
                     }}
                     icon={faDeleteLeft}
-                    onClick={() => userStatus === 'admin' && handleDeleteProduct(product.id)}
+                    onClick={() => userStatus === 'admin' && handleDeleteProduct(product.id, products)}
                   />
                 </td>
               </tr>
@@ -115,10 +120,10 @@ const ProductTable = () => {
       </table>
 
       {isModalOpen && (
-         <>
-         <div className="modal-overlay" onClick={closeModal}></div> {/* Overlay */}
-         <EditProductModal product={selectedProduct} onClose={closeModal} />
-       </>
+        <>
+          <div className="modal-overlay" onClick={closeModal}></div> {/* Overlay */}
+          <EditProductModal product={selectedProduct} onClose={closeModal} />
+        </>
       )}
     </>
   );
